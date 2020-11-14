@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">My App Kotlin</string>
+    <string name="enter">enter</string>
+    <string name="hint_et">Введите, что нибудь...</string>
 </resources>
