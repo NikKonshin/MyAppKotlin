@@ -2,6 +2,7 @@ package com.example.myappkotlin.ui
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.core.widget.addTextChangedListener
@@ -33,11 +34,16 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             bodyEt.setText(it.note)
         }
 
+        viewModel.showError().observe(viewLifecycleOwner){
+            Toast.makeText(requireContext(), "Error while saving note", Toast.LENGTH_LONG).show()
+        }
+
         titleEt.addTextChangedListener {
             viewModel.updateTitle(it?.toString() ?: "")
         }
         bodyEt.addTextChangedListener {
             viewModel.updateNote(it?.toString() ?: "")
+            viewModel.saveNote()
         }
 
     }
@@ -49,7 +55,9 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.button_back -> (requireActivity() as MainActivity).openFragment(MainFragment())
+            R.id.button_back -> {viewModel.saveNote()
+                (requireActivity() as MainActivity).openFragment(MainFragment())
+            }
         }
         return super.onOptionsItemSelected(item)
     }
