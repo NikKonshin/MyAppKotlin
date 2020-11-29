@@ -5,17 +5,31 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.myappkotlin.data.Note
 import com.example.myappkotlin.data.NotesRepository
+import com.example.myappkotlin.data.errors.NoAuthException
+import com.example.myappkotlin.model.User
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.*
+import java.lang.reflect.InvocationHandler
 
 const val NOTES_COLLECTION = "notes"
 const val TAG = "FireStoreDataBase"
+private const val USERS_COLLECTION = "users"
 
 class FireStoreDataBaseProvider : DatabaseProvider {
     private val db = FirebaseFirestore.getInstance()
-    private val notesReference = db.collection(NOTES_COLLECTION)
     private val  result = MutableLiveData<List<Note>>()
+
+    private val currentUser : FirebaseUser?
+        get() = FirebaseAuth.getInstance().currentUser
+
     private var subscribeOnDB = false
 
+    private fun getUsersNotesCollection() = currentUser?.let {
+        db.collection(USERS_COLLECTION).document(it.uid).collection(NOTES_COLLECTION)
+    } ?: throw NoAuthException()
+
+    override fun getCurrentUser() = currentUser?.run { User(displayName ?: " ",email?: " ") }
 
 
     override fun observeNotes(): LiveData<List<Note>> {
@@ -25,33 +39,56 @@ class FireStoreDataBaseProvider : DatabaseProvider {
 
     override fun addOrReplaceNote(newNote: Note): LiveData<Result<Note>> {
         val  result = MutableLiveData<Result<Note>>()
-        notesReference
-            .document(newNote.id.toString())
-            .set(newNote).addOnSuccessListener {
-                Log.d(TAG,"Note $newNote is saved")
-                result.value = Result.success(newNote)
-            }
-            .addOnFailureListener {
-                Log.d(TAG,"Error saving note $newNote, message: ${it.message}")
+        handleNotesReference(
+            {
+                getUsersNotesCollection()
+                    .document(newNote.id.toString())
+                    .set(newNote)
+                    .addOnSuccessListener {
+                        Log.d(TAG, "Note $newNote is saved")
+                        result.value = Result.success(newNote)
+                    }
+                    .addOnFailureListener {
+                        Log.e(TAG, "Error saving note $newNote, message: ${it.message}")
+                        result.value = Result.failure(it)
+                    }
+            },{
+                Log.e(TAG, "Error getting reference note $newNote, message: ${it.message}")
                 result.value = Result.failure(it)
             }
+
+        )
         return result
-    }
+            }
 
     private fun subscribeForDBChanging(){
-        notesReference.addSnapshotListener { value, error ->
-            if (error != null) {
-                Log.e(TAG, "Observe note exception: $error")
-            } else if (value != null) {
-                val notes = mutableListOf<Note>()
+    handleNotesReference(
+        {
+            getUsersNotesCollection().addSnapshotListener { snapshot, e ->
+                if (e != null){
+                    Log.e(TAG, "Observe note exception:$e")
+                } else if (snapshot != null){
+                    val notes = mutableListOf<Note>()
 
-
-                for (doc: QueryDocumentSnapshot in value) {
-                    notes.add(doc.toObject(Note::class.java))
+                    for (doc: QueryDocumentSnapshot in snapshot){
+                        notes.add(doc.toObject(Note::class.java))
+                    }
+                    result.value = notes
                 }
-                result.value = notes
             }
+            subscribeOnDB = true
+        },{
+            Log.e(TAG, "Error getting reference while subscribed for notes")
+
+        })
+    }
+    private inline fun handleNotesReference(
+        referenceHandler: (CollectionReference) ->Unit,
+        exceptionHandler: (Throwable) -> Unit = {}
+    ){
+        kotlin.runCatching {
+            getUsersNotesCollection()
         }
-        subscribeOnDB = true
+            .fold(referenceHandler,exceptionHandler)
     }
 }

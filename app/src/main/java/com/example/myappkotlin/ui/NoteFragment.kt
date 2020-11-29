@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 
 import com.example.myappkotlin.R
 import com.example.myappkotlin.data.Note
