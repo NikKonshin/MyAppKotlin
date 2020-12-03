@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -16,6 +17,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -59,4 +61,12 @@ dependencies {
     // For control over item selection of both touch and mouse driven selection
     implementation "androidx.recyclerview:recyclerview-selection:1.1.0-rc03"
     implementation 'com.google.android.material:material:1.2.0-alpha02'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-core:18.0.0'
+    implementation 'com.android.support:multidex:2.0.1'
+
+    implementation 'com.google.firebase:firebase-firestore:22.0.0'
+    implementation platform('com.google.firebase:firebase-bom:26.1.0')
+
 }
+apply plugin: 'com.google.gms.google-services'
