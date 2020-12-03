@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="standard_margin">8dp</dimen>
-    <dimen name="medium_margin">4dp</dimen>
+    <dimen name="medium_margin">8dp</dimen>
+    <dimen name="small_margin">4dp</dimen>
+    <dimen name="high">16dp</dimen>
+    <dimen name="collapsing_tb_margin_end">64dp</dimen>
+    <dimen name="collapsing_tb_margin_start">48dp</dimen>
+    <dimen name="standard_margin">16dp</dimen>
+    <dimen name="note_ll_padding">16dp</dimen>
 </resources>

@@ -1,63 +1,46 @@
 package com.example.myappkotlin.data
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import kotlin.random.Random
+
+private val idRandom = Random(0)
+val noteId: Long
+    get() = idRandom.nextLong()
+
+fun randomColor(): Color {
+    val colors: Array<Color> = Color.values()
+    val id = Random.nextInt((colors.size - 1) + 1)
+
+    return colors[id]
+}
+
 object NotesRepositoryImpl : NotesRepository {
 
-    private val notes: List<Note> = listOf(
-        Note(
-            title = "Моя заметка",
-            note = "Привет"
-        ),
+    private val notes: MutableList<Note> = mutableListOf()
 
-        Note(
-            title = "Моя заметка",
-            note = "Привет"
-        ),
+    private val allNotes = MutableLiveData(getListForNotify())
 
-        Note(
-            title = "Моя заметка",
-            note = "Привет"
-        ),
+    override fun observeNotes(): LiveData<List<Note>> {
+        return allNotes
+    }
 
-        Note(
-            title = "Моя заметка",
-            note = "Привет"
-        ),
+    override fun addOrReplaceNote(newNote: Note) {
+        notes.find { it.id == newNote.id }?.let {
+            if (it == newNote) return
 
-        Note(
-            title = "Моя заметка",
-            note = "Привет"
-        ),
+            notes.remove(it)
+        }
 
-        Note(
-            title = "Моя заметка",
-            note = "Привет"
-        ),
+        notes.add(newNote)
 
-        Note(
-            title = "Моя заметка",
-            note = "Привет"
-        ),
-
-        Note(
-            title = "Моя заметка",
-            note = "Привет"
-        ),
-        Note(
-            title = "Моя заметка",
-            note = "Привет"
-        ),
-
-        Note(
-            title = "Моя заметка",
-            note = "Привет"
-        ),
-
-
+        allNotes.postValue(
+            getListForNotify()
         )
+    }
 
-
-    override fun getNotes(): List<Note> {
-        return notes
+    private fun getListForNotify(): List<Note> = notes.toMutableList().also {
+        it.reverse()
     }
 
 }
