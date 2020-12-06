@@ -19,6 +19,9 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
+    buildFeatures{
+        viewBinding = true
+    }
 
     buildTypes {
         release {
@@ -70,5 +73,18 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:26.1.0')
     implementation 'com.android.support:multidex:2.0.1'
 
+    def koin_version = '2.2.1'
+    // Koin for Kotlin
+    implementation "org.koin:koin-core:$koin_version"
+// Koin extended & experimental features
+    implementation "org.koin:koin-core-ext:$koin_version"
+    implementation "org.koin:koin-android:$koin_version"
+// Koin Android Scope features
+    implementation "org.koin:koin-android-scope:$koin_version"
+// Koin Android ViewModel features
+    implementation "org.koin:koin-android-viewmodel:$koin_version"
+// Koin Android Experimental features
+    implementation "org.koin:koin-android-ext:$koin_version"
+    implementation "org.jetbrains.anko:anko-commons:0.10.7"
 }
 apply plugin: 'com.google.gms.google-services'

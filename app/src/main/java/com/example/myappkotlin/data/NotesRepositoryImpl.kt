@@ -17,6 +17,11 @@ fun randomColor(): Color {
 }
 
 class NotesRepositoryImpl(private val provider: FireStoreDataBaseProvider) : NotesRepository {
+
+    override fun deleteNote(note: Note): LiveData<Result<Unit>> {
+       return provider.deleteNote(note)
+    }
+
     override fun getCurrentUser(): User? = provider.getCurrentUser()
 
     override fun observeNotes(): LiveData<List<Note>> {
@@ -26,5 +31,6 @@ class NotesRepositoryImpl(private val provider: FireStoreDataBaseProvider) : Not
     override fun addOrReplaceNote(newNote: Note): LiveData<Result<Note>> {
         return provider.addOrReplaceNote(newNote)
     }
+
+
 }
-val notesRepository: NotesRepository by lazy { NotesRepositoryImpl(FireStoreDataBaseProvider()) }
