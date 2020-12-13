@@ -1,35 +1,44 @@
 package com.example.myappkotlin.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import com.example.myappkotlin.presentation.NotesViewModel
 import com.example.myappkotlin.R
 import com.example.myappkotlin.data.Note
 import com.example.myappkotlin.presentation.ViewState
 import com.example.myappkotlin.ui.adapter.NotesAdapter
-import kotlinx.android.synthetic.main.fragment_note.*
+import com.firebase.ui.auth.AuthUI
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.android.synthetic.main.main_fragment.toolbar
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainFragment : Fragment(R.layout.main_fragment) {
 
-    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProvider(this).get(
-            NotesViewModel::class.java
-        )
-    }
+    private val viewModel by viewModel<NotesViewModel>()
+    private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
         setHasOptionsMenu(true)
+
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
+            .requestIdToken("fafas")
+            .requestEmail()
+            .build()
+        googleSignInClient = context?.let { GoogleSignIn.getClient(it,gso) }!!
+
         val adapter = NotesAdapter {
             navigateToNote(it)
         }
@@ -70,8 +79,24 @@ class MainFragment : Fragment(R.layout.main_fragment) {
         return super.onOptionsItemSelected(item)
     }
 
+    private fun logout(){
+        context?.let {
+            AuthUI.getInstance()
+                .signOut(it)
+                .addOnCompleteListener {
+                    startActivity(Intent(activity, SplashActivity::class.java))
+                }
+        }
+    }
+
     private fun showLogoutDialog() {
-        parentFragmentManager.findFragmentByTag(LogoutDialog.TAG) ?:
-        LogoutDialog.createInstance(context).show(parentFragmentManager, LogoutDialog.TAG)
+    context?.let {
+        AlertDialog.Builder(it)
+            .setTitle(R.string.logout_dialog_title)
+            .setMessage(R.string.logout_dialog_message)
+            .setPositiveButton(R.string.ok_bth_title) { _, _ ->  logout() }
+            .setNegativeButton(R.string.logout_dialog_cancel) {dialog, _ -> dialog.dismiss() }
+            .show()
+    }
     }
 }

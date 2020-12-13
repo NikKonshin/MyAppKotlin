@@ -2,14 +2,16 @@ package com.example.myappkotlin.presentation
 
 import androidx.lifecycle.*
 import com.example.myappkotlin.data.Note
-import com.example.myappkotlin.data.notesRepository
+import com.example.myappkotlin.data.NotesRepository
 
-class NoteViewModel(var note: Note?) : ViewModel(), LifecycleOwner {
+class NoteViewModel(private val notesRepository: NotesRepository, var note: Note?) : ViewModel() {
 
     private val showErrorLiveData = MutableLiveData<Boolean>()
-    val lifecycle = LifecycleRegistry(this).also {
+    private val lifecycleOwner: LifecycleOwner = LifecycleOwner { viewModelLifecycle }
+    private val viewModelLifecycle = LifecycleRegistry(lifecycleOwner).also {
         it.currentState = Lifecycle.State.RESUMED
     }
+
     fun updateNote(text: String) {
         note = (note ?: generateNote()).copy(note = text)
     }
@@ -19,14 +21,14 @@ class NoteViewModel(var note: Note?) : ViewModel(), LifecycleOwner {
 
     }
 
-    fun saveNote(){
-        note?.let {note : Note ->
+    fun saveNote() {
+        note?.let { note: Note ->
             notesRepository.addOrReplaceNote(note)
-                .observe(this){
-                it.onFailure {
-                    showErrorLiveData.value = true
+                .observe(lifecycleOwner) {
+                    it.onFailure {
+                        showErrorLiveData.value = true
+                    }
                 }
-            }
         }
     }
 
@@ -34,14 +36,26 @@ class NoteViewModel(var note: Note?) : ViewModel(), LifecycleOwner {
 
     override fun onCleared() {
         super.onCleared()
-        lifecycle.currentState = Lifecycle.State.DESTROYED
+        viewModelLifecycle.currentState = Lifecycle.State.DESTROYED
     }
 
     private fun generateNote(): Note {
         return Note()
     }
 
-    override fun getLifecycle(): Lifecycle {
-        return lifecycle
+    fun deleteNote() {
+        note?.let { note: Note ->
+            notesRepository.deleteNote(note)
+                .observe(lifecycleOwner) {
+                    it.onFailure {
+                        showErrorLiveData.value = true
+                    }
+                    it.onSuccess {
+
+                    }
+
+                }
+        }
     }
+
 }
