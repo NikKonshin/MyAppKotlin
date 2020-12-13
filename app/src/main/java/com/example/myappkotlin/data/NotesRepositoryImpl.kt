@@ -2,6 +2,7 @@ package com.example.myappkotlin.data
 
 import androidx.lifecycle.LiveData
 import com.example.myappkotlin.data.db.FireStoreDataBaseProvider
+import com.example.myappkotlin.model.User
 import kotlin.random.Random
 
 private val idRandom = Random(0)
@@ -15,7 +16,9 @@ fun randomColor(): Color {
     return colors[id]
 }
 
-class NotesRepositoryImpl(val provider: FireStoreDataBaseProvider) : NotesRepository {
+class NotesRepositoryImpl(private val provider: FireStoreDataBaseProvider) : NotesRepository {
+    override fun getCurrentUser(): User? = provider.getCurrentUser()
+
     override fun observeNotes(): LiveData<List<Note>> {
         return provider.observeNotes()
     }
