@@ -18,7 +18,6 @@ private const val USERS_COLLECTION = "users"
 class FireStoreDataBaseProvider : DatabaseProvider {
     private val db = FirebaseFirestore.getInstance()
     private val result = MutableLiveData<List<Note>>()
-
     private val currentUser: FirebaseUser?
         get() = FirebaseAuth.getInstance().currentUser
 

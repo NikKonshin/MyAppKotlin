@@ -20,13 +20,6 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
-    fun openFragment(fragment: Fragment) {
-        val transaction = supportFragmentManager.beginTransaction()
-            .addToBackStack("")
-            .replace(R.id.fragment_container, fragment)
-            .commit()
-    }
-
     companion object{
         fun getStartIntent(context: Context) = Intent(context, MainActivity::class.java)
     }
