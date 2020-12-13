@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
-    companion object{
+    companion object {
         fun getStartIntent(context: Context) = Intent(context, MainActivity::class.java)
     }
 }

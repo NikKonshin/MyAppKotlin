@@ -34,10 +34,10 @@ class MainFragment : Fragment(R.layout.main_fragment) {
         setHasOptionsMenu(true)
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
-            .requestIdToken("fafas")
+            .requestIdToken(getString(R.string.gso_default_token_id))
             .requestEmail()
             .build()
-        googleSignInClient = context?.let { GoogleSignIn.getClient(it,gso) }!!
+        googleSignInClient = context?.let { GoogleSignIn.getClient(it, gso) }!!
 
         val adapter = NotesAdapter {
             navigateToNote(it)
@@ -79,7 +79,7 @@ class MainFragment : Fragment(R.layout.main_fragment) {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun logout(){
+    private fun logout() {
         context?.let {
             AuthUI.getInstance()
                 .signOut(it)
@@ -90,13 +90,13 @@ class MainFragment : Fragment(R.layout.main_fragment) {
     }
 
     private fun showLogoutDialog() {
-    context?.let {
-        AlertDialog.Builder(it)
-            .setTitle(R.string.logout_dialog_title)
-            .setMessage(R.string.logout_dialog_message)
-            .setPositiveButton(R.string.ok_bth_title) { _, _ ->  logout() }
-            .setNegativeButton(R.string.logout_dialog_cancel) {dialog, _ -> dialog.dismiss() }
-            .show()
-    }
+        context?.let {
+            AlertDialog.Builder(it)
+                .setTitle(R.string.logout_dialog_title)
+                .setMessage(R.string.logout_dialog_message)
+                .setPositiveButton(R.string.ok_bth_title) { _, _ -> logout() }
+                .setNegativeButton(R.string.logout_dialog_cancel) { dialog, _ -> dialog.dismiss() }
+                .show()
+        }
     }
 }
